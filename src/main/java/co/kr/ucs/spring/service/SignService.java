@@ -1,24 +1,45 @@
 package co.kr.ucs.spring.service;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Service;
 
-import co.kr.ucs.spring.dao.DBConnectionPool;
 import co.kr.ucs.spring.vo.UserVO;
 
+@Service
 public class SignService {
 	
+//	@Autowired
+//	DBConnectionPool dbPool;
+	
 	@Autowired
-	DBConnectionPool dbPool;
+	JdbcTemplate jdbcTemplate;
 	
 	public UserVO getUser(String userId, String userPw)throws SQLException {
-		UserVO userVO = null;
+		StringBuffer sql = new StringBuffer();
+		sql.append("SELECT USER_ID, USER_NM, USER_PW, EMAIL FROM CM_USER WHERE USER_ID = ?");
+		sql.append(" AND USER_PW = ?");
 		
-		Connection conn = null;
+		return jdbcTemplate.queryForObject(sql.toString(), new Object[] {userId, userPw}, 
+				new RowMapper<UserVO>() {
+					@Override
+					public UserVO mapRow(ResultSet rs, int rowNum) throws SQLException {
+						UserVO user = new UserVO();
+						user.setUserId(rs.getString("USER_ID"));
+						user.setUserNm(rs.getString("USER_NM"));
+						user.setUserPw(rs.getString("USER_PW"));
+						user.setEmail(rs.getString("EMAIL"));
+						
+						return user;
+					}
+				});
+		
+		/** DBConnectionPool 사용 **/
+		/*Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		
@@ -58,6 +79,7 @@ public class SignService {
 		}
 		
 		return userVO;
+		*/
 		
 	}
 	
@@ -67,7 +89,20 @@ public class SignService {
 	}
 
 	public int getExistsUser(String userId, String userPw)throws SQLException{
-		int count = 0;
+		Object[] sqlParameter = new Object[] {userId};
+
+		StringBuffer sql = new StringBuffer();
+		sql.append("SELECT COUNT(*) FROM CM_USER WHERE USER_ID = ?");
+		
+		if(userPw != null){
+			sqlParameter = new Object[] {userId, userPw};
+			sql.append(" AND USER_PW = ?");
+		}
+		
+		return jdbcTemplate.queryForObject(sql.toString(), sqlParameter, Integer.class);
+		
+		/** DBConnectionPool 사용 **/
+		/* 
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -107,12 +142,21 @@ public class SignService {
 			if(pstmt != null) try{pstmt.close();}catch(Exception ex){}
 		}
 		
-		return count;
+		return count;*/
 		
 	}
 	
 	public void signUp(String userId, String userNm, String userPw, String email)throws SQLException{
-		Connection conn = null;
+		StringBuffer sql = new StringBuffer();
+		sql.append("INSERT INTO CM_USER (");
+		sql.append("USER_ID, USER_NM, USER_PW, EMAIL");
+		sql.append(")VALUES(");
+		sql.append("?, ? ,?, ?)");
+		
+		jdbcTemplate.update(sql.toString(), new Object[] {userId, userNm, userPw, email});
+		
+		/** DBConnectionPool 사용 **/
+		/*Connection conn = null;
 		PreparedStatement pstmt = null;
 		try{
 			conn = dbPool.getConnection();
@@ -140,6 +184,6 @@ public class SignService {
 		}finally{
 			dbPool.freeConnection(conn);
 			if(pstmt != null) try{pstmt.close();}catch(Exception ex){}
-		}
+		}*/
 	}
 }

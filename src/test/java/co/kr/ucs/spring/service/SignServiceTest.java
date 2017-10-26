@@ -20,9 +20,9 @@ public class SignServiceTest {
 	
 	@Test
 	public void signUpTest() throws SQLException {
-		signService.signUp("regId01", "테스트아이디", "1234", "seongdh@ucssystem.co.kr");
+		signService.signUp("regId03", "테스트아이디", "1234", "seongdh@ucssystem.co.kr");
 		
-		int count = signService.getExistsUser("regId01");
+		int count = signService.getExistsUser("regId02");
 		assertEquals(count, 1);
 		
 	}
@@ -37,7 +37,7 @@ public class SignServiceTest {
 	}
 	
 	@Test
-	public void getUserText() throws SQLException {
+	public void getUserTest() throws SQLException {
 		UserVO user = signService.getUser("sp10773p", "1234");
 		assertEquals(user.getUserId(), "sp10773p");
 	}

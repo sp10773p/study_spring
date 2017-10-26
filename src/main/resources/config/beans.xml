@@ -1,8 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
 
+	<context:component-scan base-package="co.kr.ucs.spring" />
+	
+	<context:property-placeholder location="classpath:config/db.properties"/>
+	
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+		<property name="driverClass" value="${db.driverClass}"/>
+		<property name="url" value="${db.url}"/>
+		<property name="username" value="${db.username}"/>
+		<property name="password" value="${db.password}"/>
+	</bean>
+	
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<constructor-arg index="0" ref="dataSource"/>
+	</bean>
+	
+	<!-- IoC/DI 실습 -->
+	<!-- 
 	<bean id="dbConnectionPool" class="co.kr.ucs.spring.dao.DBConnectionPool">
 		<constructor-arg index="0" value="jdbc:oracle:thin:@220.76.203.39:1521:UCS"/>
 		<constructor-arg index="1" value="UCS_STUDY"/>
@@ -11,6 +30,7 @@
 		<constructor-arg index="4" value="10"/>
 	</bean>
 	
-	<bean id="signService" class="co.kr.ucs.spring.service.SignService"/>
+	<bean id="signService" class="co.kr.ucs.spring.service.SignService"/> 
+	-->
 
 </beans>
